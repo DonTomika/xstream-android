@@ -39,26 +39,32 @@ import com.thoughtworks.xstream.core.util.ThreadSafeSimpleDateFormat;
 public class DateConverter extends AbstractSingleValueConverter implements ErrorReporter {
 
     private static final String[] DEFAULT_ACCEPTABLE_FORMATS;
-    private static final String DEFAULT_PATTERN;
+    private static final String DEFAULT_PATTERN = "yyyy-MM-dd HH:mm:ss.S z";
+    
+    private static final String[] DEFAULT_ACCEPTABLE_FORMATS_UTC;
+    private static final String DEFAULT_PATTERN_UTC = "yyyy-MM-dd HH:mm:ss.S 'UTC'";
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
+    
     static {
-        final String defaultPattern = "yyyy-MM-dd HH:mm:ss.S z";
         final List acceptablePatterns = new ArrayList();
-        final boolean utcSupported = JVM.canParseUTCDateFormat();
-        DEFAULT_PATTERN = utcSupported ? defaultPattern : "yyyy-MM-dd HH:mm:ss.S 'UTC'";
-        if (!utcSupported) {
-            acceptablePatterns.add(defaultPattern);
-        }
         acceptablePatterns.add("yyyy-MM-dd HH:mm:ss.S a");
         // JDK 1.3 needs both versions
         acceptablePatterns.add("yyyy-MM-dd HH:mm:ssz");
         acceptablePatterns.add("yyyy-MM-dd HH:mm:ss z");
-        if (!utcSupported) {
-            acceptablePatterns.add("yyyy-MM-dd HH:mm:ss 'UTC'");
-        }
         // backwards compatibility
         acceptablePatterns.add("yyyy-MM-dd HH:mm:ssa");
+        
         DEFAULT_ACCEPTABLE_FORMATS = (String[]) acceptablePatterns.toArray(new String[acceptablePatterns.size()]);
+        
+        final List acceptablePatternsUTC = new ArrayList();
+        acceptablePatternsUTC.add(DEFAULT_PATTERN);
+        acceptablePatternsUTC.add("yyyy-MM-dd HH:mm:ss.S a");
+        // JDK 1.3 needs both versions
+        acceptablePatternsUTC.add("yyyy-MM-dd HH:mm:ssz");
+        acceptablePatternsUTC.add("yyyy-MM-dd HH:mm:ss z");
+        // backwards compatibility
+        acceptablePatternsUTC.add("yyyy-MM-dd HH:mm:ssa");
+        DEFAULT_ACCEPTABLE_FORMATS_UTC = (String[]) acceptablePatternsUTC.toArray(new String[acceptablePatternsUTC.size()]);
     }
     private final ThreadSafeSimpleDateFormat defaultFormat;
     private final ThreadSafeSimpleDateFormat[] acceptableFormats;
@@ -78,7 +84,7 @@ public class DateConverter extends AbstractSingleValueConverter implements Error
      * @since 1.4
      */
     public DateConverter(TimeZone timeZone) {
-        this(DEFAULT_PATTERN, DEFAULT_ACCEPTABLE_FORMATS, timeZone);
+    	this(timeZone.equals(UTC) ? DEFAULT_PATTERN_UTC : DEFAULT_PATTERN, timeZone.equals(UTC) ? DEFAULT_ACCEPTABLE_FORMATS_UTC : DEFAULT_ACCEPTABLE_FORMATS, timeZone);
     }
 
     /**
@@ -88,7 +94,7 @@ public class DateConverter extends AbstractSingleValueConverter implements Error
      * @since 1.3
      */
     public DateConverter(boolean lenient) {
-        this(DEFAULT_PATTERN, DEFAULT_ACCEPTABLE_FORMATS, lenient);
+        this(DEFAULT_PATTERN_UTC, DEFAULT_ACCEPTABLE_FORMATS_UTC, lenient);
     }
 
     /**

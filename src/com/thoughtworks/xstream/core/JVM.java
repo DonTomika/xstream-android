@@ -74,13 +74,8 @@ public class JVM implements Caching {
             test = false;
         }
         optimizedTreeSetAddAll = test;
-        try {
-            new SimpleDateFormat("z").parse("UTC");
-            test = true;
-        } catch (ParseException e) {
-            test = false;
-        }
-        canParseUTCDateFormat = test;
+        
+        canParseUTCDateFormat = true;
     }
     
     /**
